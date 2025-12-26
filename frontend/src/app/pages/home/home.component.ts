@@ -19,6 +19,7 @@ export class HomeComponent implements OnInit, OnDestroy {
   isLoading = true;
   currentUserName: string | null = null;
   unreadCount = 0;
+  mobileMenuOpen = false;
   private profileSubscription?: Subscription;
 
   getRescuerDisplayName(dog: Dog): string {
@@ -91,7 +92,12 @@ export class HomeComponent implements OnInit, OnDestroy {
     this.router.navigate(['/dogs']);
   }
 
+  toggleMobileMenu() {
+    this.mobileMenuOpen = !this.mobileMenuOpen;
+  }
+
   async logout() {
+    this.mobileMenuOpen = false;
     await this.authService.signOut();
     this.router.navigate(['/']);
   }

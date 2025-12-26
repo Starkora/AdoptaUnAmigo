@@ -3,6 +3,7 @@ import { ConfigModule } from '@nestjs/config';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { UploadModule } from './upload/upload.module';
+import { EmailModule } from './email/email.module';
 
 @Module({
   imports: [
@@ -10,7 +11,8 @@ import { UploadModule } from './upload/upload.module';
       isGlobal: true,
       envFilePath: '.env',
     }),
-    UploadModule
+    UploadModule,
+    EmailModule
   ],
   controllers: [AppController],
   providers: [AppService],
