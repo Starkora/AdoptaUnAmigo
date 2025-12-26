@@ -1,0 +1,761 @@
+<!-- Navbar -->
+<nav class="bg-white shadow-md">
+  <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+    <div class="flex justify-between h-16">
+      <div class="flex items-center">
+        <a routerLink="/" class="flex items-center">
+          <svg class="w-8 h-8 text-indigo-600 mr-2" fill="currentColor" viewBox="0 0 24 24">
+            <path d="M18 10c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2s-2 .9-2 2v4c0 1.1.9 2 2 2zM6 10c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2S4 2.9 4 4v4c0 1.1.9 2 2 2zm6 0c3.31 0 6 2.69 6 6 0 1.66-1.34 3-3 3h-6c-1.66 0-3-1.34-3-3 0-3.31 2.69-6 6-6zm0 2c-2.21 0-4 1.79-4 4h8c0-2.21-1.79-4-4-4z"/>
+          </svg>
+          <span class="text-xl font-bold text-gray-900">AdoptaUnAmigo</span>
+        </a>
+      </div>
+      <div class="flex items-center space-x-4">
+        <a routerLink="/" class="text-gray-700 hover:text-indigo-600 px-3 py-2 rounded-md text-sm font-medium">Inicio</a>
+        <a routerLink="/dogs" class="text-gray-700 hover:text-indigo-600 px-3 py-2 rounded-md text-sm font-medium">Perros</a>
+        <a routerLink="/login" class="bg-indigo-600 text-white hover:bg-indigo-700 px-4 py-2 rounded-md text-sm font-medium">Iniciar Sesión</a>
+      </div>
+    </div>
+  </div>
+</nav>
+
+<div class="min-h-screen flex items-center justify-center bg-gray-50 py-12 px-4">
+  <div class="max-w-md w-full space-y-8">
+    <div>
+      <div class="flex items-center justify-center mb-2">
+        <svg class="w-12 h-12 text-indigo-600 mr-2" fill="currentColor" viewBox="0 0 24 24">
+          <path d="M18 10c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2s-2 .9-2 2v4c0 1.1.9 2 2 2zM6 10c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2S4 2.9 4 4v4c0 1.1.9 2 2 2zm6 0c3.31 0 6 2.69 6 6 0 1.66-1.34 3-3 3h-6c-1.66 0-3-1.34-3-3 0-3.31 2.69-6 6-6zm0 2c-2.21 0-4 1.79-4 4h8c0-2.21-1.79-4-4-4z"/>
+        </svg>
+        <h2 class="text-3xl font-extrabold text-gray-900">AdoptaUnAmigo</h2>
+      </div>
+      <p class="text-center text-sm text-gray-600">
+        Crea tu cuenta
+      </p>
+    </div>
+
+    <form class="mt-8 space-y-6" (ngSubmit)="onSubmit()">
+      <!-- Selección de Rol -->
+      <div class="bg-gray-100 p-4 rounded-md">
+        <label class="block text-sm font-medium text-gray-700 mb-3">
+          ¿Qué deseas hacer?
+        </label>
+        <div class="grid grid-cols-2 gap-4">
+          <button
+            type="button"
+            (click)="role = 'adoptante'"
+            [class.bg-indigo-600]="role === 'adoptante'"
+            [class.text-white]="role === 'adoptante'"
+            [class.bg-white]="role !== 'adoptante'"
+            class="p-3 rounded-md border text-center transition-all"
+          >
+            <svg class="w-8 h-8 mx-auto mb-1" [class.text-white]="role === 'adoptante'" [class.text-indigo-600]="role !== 'adoptante'" fill="currentColor" viewBox="0 0 24 24">
+              <path d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z"/>
+            </svg>
+            <div class="font-medium">Adoptante</div>
+            <div class="text-xs">Quiero adoptar</div>
+          </button>
+          <button
+            type="button"
+            (click)="role = 'rescatista'"
+            [class.bg-indigo-600]="role === 'rescatista'"
+            [class.text-white]="role === 'rescatista'"
+            [class.bg-white]="role !== 'rescatista'"
+            class="p-3 rounded-md border text-center transition-all"
+          >
+            <svg class="w-8 h-8 mx-auto mb-1" [class.text-white]="role === 'rescatista'" [class.text-indigo-600]="role !== 'rescatista'" fill="currentColor" viewBox="0 0 24 24">
+              <path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/>
+            </svg>
+            <div class="font-medium">Rescatista</div>
+            <div class="text-xs">Doy en adopción</div>
+          </button>
+        </div>
+      </div>
+
+      <!-- Indicador de pasos (solo para adoptantes) -->
+      <div *ngIf="role === 'adoptante'" class="flex items-center justify-center space-x-2">
+        <div *ngFor="let step of [1, 2, 3]" class="flex items-center">
+          <div 
+            [class.bg-indigo-600]="step <= currentStep"
+            [class.text-white]="step <= currentStep"
+            [class.bg-gray-300]="step > currentStep"
+            [class.text-gray-600]="step > currentStep"
+            class="w-8 h-8 rounded-full flex items-center justify-center font-semibold text-sm"
+          >
+            {{ step }}
+          </div>
+          <div *ngIf="step < 3" 
+            [class.bg-indigo-600]="step < currentStep"
+            [class.bg-gray-300]="step >= currentStep"
+            class="w-12 h-1 mx-1"
+          ></div>
+        </div>
+      </div>
+
+      <!-- PASO 1: Información Básica -->
+      <div *ngIf="currentStep === 1" class="rounded-md shadow-sm space-y-4">
+        <div class="grid grid-cols-2 gap-4">
+          <div>
+            <label for="firstName" class="block text-sm font-medium text-gray-700">
+              Nombre *
+            </label>
+            <input
+              id="firstName"
+              name="firstName"
+              type="text"
+              required
+              [(ngModel)]="firstName"
+              class="mt-1 appearance-none relative block w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-indigo-500 focus:border-indigo-500"
+              placeholder="Tu nombre"
+            />
+          </div>
+          <div>
+            <label for="lastName" class="block text-sm font-medium text-gray-700">
+              Apellido *
+            </label>
+            <input
+              id="lastName"
+              name="lastName"
+              type="text"
+              required
+              [(ngModel)]="lastName"
+              class="mt-1 appearance-none relative block w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-indigo-500 focus:border-indigo-500"
+              placeholder="Tu apellido"
+            />
+          </div>
+        </div>
+
+        <!-- Campos adicionales para rescatistas -->
+        <div *ngIf="role === 'rescatista'" class="space-y-4 p-4 bg-indigo-50 rounded-lg border border-indigo-200">
+          <h3 class="font-semibold text-indigo-900 text-sm mb-3">Información Adicional del Rescatista</h3>
+          
+          <!-- Tipo de rescatista -->
+          <div>
+            <label class="block text-sm font-medium text-gray-700 mb-2">
+              Tipo de rescatista *
+            </label>
+            <div class="grid grid-cols-3 gap-3">
+              <button
+                type="button"
+                (click)="rescuerType = 'individual'"
+                [class.bg-indigo-600]="rescuerType === 'individual'"
+                [class.text-white]="rescuerType === 'individual'"
+                [class.bg-white]="rescuerType !== 'individual'"
+                [class.text-gray-700]="rescuerType !== 'individual'"
+                class="px-4 py-2 rounded-lg border border-gray-300 hover:bg-indigo-50 transition text-sm font-medium"
+              >
+                Individual
+              </button>
+              <button
+                type="button"
+                (click)="rescuerType = 'organizacion'"
+                [class.bg-indigo-600]="rescuerType === 'organizacion'"
+                [class.text-white]="rescuerType === 'organizacion'"
+                [class.bg-white]="rescuerType !== 'organizacion'"
+                [class.text-gray-700]="rescuerType !== 'organizacion'"
+                class="px-4 py-2 rounded-lg border border-gray-300 hover:bg-indigo-50 transition text-sm font-medium"
+              >
+                Organización
+              </button>
+              <button
+                type="button"
+                (click)="rescuerType = 'albergue'"
+                [class.bg-indigo-600]="rescuerType === 'albergue'"
+                [class.text-white]="rescuerType === 'albergue'"
+                [class.bg-white]="rescuerType !== 'albergue'"
+                [class.text-gray-700]="rescuerType !== 'albergue'"
+                class="px-4 py-2 rounded-lg border border-gray-300 hover:bg-indigo-50 transition text-sm font-medium"
+              >
+                Albergue
+              </button>
+            </div>
+          </div>
+
+          <!-- Nombre de organización (solo para organización/albergue) -->
+          <div *ngIf="needsSocialNetworks()">
+            <label for="organizationName" class="block text-sm font-medium text-gray-700">
+              Nombre de organización / refugio *
+            </label>
+            <input
+              id="organizationName"
+              name="organizationName"
+              type="text"
+              [(ngModel)]="organizationName"
+              class="mt-1 appearance-none relative block w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-indigo-500 focus:border-indigo-500"
+              placeholder="Nombre de tu refugio u organización"
+            />
+          </div>
+
+          <!-- Años de experiencia -->
+          <div>
+            <label for="yearsExperience" class="block text-sm font-medium text-gray-700">
+              Años de experiencia como rescatista *
+            </label>
+            <input
+              id="yearsExperience"
+              name="yearsExperience"
+              type="number"
+              min="0"
+              max="50"
+              [(ngModel)]="yearsExperience"
+              class="mt-1 appearance-none relative block w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-indigo-500 focus:border-indigo-500"
+              placeholder="Ej: 3"
+            />
+          </div>
+
+          <!-- Dirección donde están los animales -->
+          <div>
+            <label for="rescueAddress" class="block text-sm font-medium text-gray-700">
+              Dirección donde se encuentran los animales *
+            </label>
+            <input
+              id="rescueAddress"
+              name="rescueAddress"
+              type="text"
+              [(ngModel)]="rescueAddress"
+              class="mt-1 appearance-none relative block w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-indigo-500 focus:border-indigo-500"
+              placeholder="Ej: Av. Principal 123, Distrito, Ciudad"
+            />
+          </div>
+
+          <!-- Horario de atención (solo para organización/albergue) -->
+          <div *ngIf="needsAttentionHours()">
+            <label for="attentionHours" class="block text-sm font-medium text-gray-700">
+              Horario de atención para visitas *
+            </label>
+            <input
+              id="attentionHours"
+              name="attentionHours"
+              type="text"
+              [(ngModel)]="attentionHours"
+              class="mt-1 appearance-none relative block w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-indigo-500 focus:border-indigo-500"
+              placeholder="Ej: Lun-Vie 9am-5pm, Sáb 9am-1pm"
+            />
+          </div>
+
+          <!-- Redes sociales (solo para organización/albergue) -->
+          <div *ngIf="needsSocialNetworks()" class="space-y-3">
+            <label class="block text-sm font-medium text-gray-700">
+              Redes sociales (opcional)
+            </label>
+            <div>
+              <input
+                id="facebookUrl"
+                name="facebookUrl"
+                type="url"
+                [(ngModel)]="facebookUrl"
+                class="appearance-none relative block w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 text-sm"
+                placeholder="URL de Facebook"
+              />
+            </div>
+            <div>
+              <input
+                id="instagramUrl"
+                name="instagramUrl"
+                type="url"
+                [(ngModel)]="instagramUrl"
+                class="appearance-none relative block w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 text-sm"
+                placeholder="URL de Instagram"
+              />
+            </div>
+            <div>
+              <input
+                id="websiteUrl"
+                name="websiteUrl"
+                type="url"
+                [(ngModel)]="websiteUrl"
+                class="appearance-none relative block w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 text-sm"
+                placeholder="Sitio web"
+              />
+            </div>
+          </div>
+
+          <!-- Proceso de seguimiento -->
+          <div>
+            <label for="followupProcess" class="block text-sm font-medium text-gray-700">
+              Proceso de seguimiento post-adopción *
+            </label>
+            <textarea
+              id="followupProcess"
+              name="followupProcess"
+              rows="3"
+              [(ngModel)]="followupProcess"
+              class="mt-1 appearance-none relative block w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 text-sm"
+              placeholder="Describe cómo haces seguimiento de las adopciones..."
+            ></textarea>
+          </div>
+
+          <!-- Foto del lugar -->
+          <div>
+            <label class="block text-sm font-medium text-gray-700 mb-2">
+              Foto del lugar donde se cuidan los animales (opcional)
+            </label>
+            <p class="text-xs text-gray-500 mb-2">
+              Máximo 5MB - Formatos: JPG, PNG, WEBP
+            </p>
+            
+            <div *ngIf="!placePhotoPreview" class="flex items-center justify-center w-full">
+              <label class="flex flex-col items-center justify-center w-full h-32 border-2 border-gray-300 border-dashed rounded-lg cursor-pointer bg-white hover:bg-gray-50">
+                <div class="flex flex-col items-center justify-center pt-5 pb-6">
+                  <svg class="w-8 h-8 mb-2 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12" />
+                  </svg>
+                  <p class="text-xs text-gray-500">Click para subir foto</p>
+                </div>
+                <input
+                  type="file"
+                  accept="image/jpeg,image/jpg,image/png,image/webp"
+                  (change)="onPlacePhotoSelected($event)"
+                  class="hidden"
+                />
+              </label>
+            </div>
+
+            <div *ngIf="placePhotoPreview" class="relative">
+              <img [src]="placePhotoPreview" alt="Vista previa" class="w-full h-48 object-cover rounded-lg">
+              <button
+                type="button"
+                (click)="removePlacePhoto()"
+                class="absolute top-2 right-2 bg-red-600 text-white p-2 rounded-full hover:bg-red-700 transition"
+              >
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                </svg>
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <div>
+          <label for="phone" class="block text-sm font-medium text-gray-700">
+            Teléfono *
+          </label>
+          <input
+            id="phone"
+            name="phone"
+            type="tel"
+            required
+            [(ngModel)]="phone"
+            class="mt-1 appearance-none relative block w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-indigo-500 focus:border-indigo-500"
+            placeholder="999999999"
+          />
+        </div>
+
+        <div>
+          <label for="email" class="block text-sm font-medium text-gray-700">
+            Email *
+          </label>
+          <input
+            id="email"
+            name="email"
+            type="email"
+            required
+            [(ngModel)]="email"
+            class="mt-1 appearance-none relative block w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-indigo-500 focus:border-indigo-500"
+            placeholder="tu@email.com"
+          />
+        </div>
+
+        <div>
+          <label for="password" class="block text-sm font-medium text-gray-700">
+            Contraseña *
+          </label>
+          <div class="relative">
+            <input
+              id="password"
+              name="password"
+              [type]="showPassword ? 'text' : 'password'"
+              required
+              [(ngModel)]="password"
+              (ngModelChange)="onPasswordChange()"
+              class="mt-1 appearance-none relative block w-full px-3 py-2 pr-10 border border-gray-300 rounded-md focus:outline-none focus:ring-indigo-500 focus:border-indigo-500"
+              placeholder="Mínimo 8 caracteres"
+            />
+            <button
+              type="button"
+              (click)="togglePasswordVisibility()"
+              class="absolute inset-y-0 right-0 pr-3 flex items-center"
+            >
+              <svg *ngIf="!showPassword" class="h-5 w-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path>
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"></path>
+              </svg>
+              <svg *ngIf="showPassword" class="h-5 w-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.543-7a9.97 9.97 0 011.563-3.029m5.858.908a3 3 0 114.243 4.243M9.878 9.878l4.242 4.242M9.88 9.88l-3.29-3.29m7.532 7.532l3.29 3.29M3 3l3.59 3.59m0 0A9.953 9.953 0 0112 5c4.478 0 8.268 2.943 9.543 7a10.025 10.025 0 01-4.132 5.411m0 0L21 21"></path>
+              </svg>
+            </button>
+          </div>
+          
+          <!-- Requisitos de contraseña -->
+          <div class="mt-2 space-y-1">
+            <div class="flex items-center text-xs" [class.text-green-600]="passwordRequirements.minLength" [class.text-gray-500]="!passwordRequirements.minLength">
+              <svg class="w-4 h-4 mr-1" fill="currentColor" viewBox="0 0 20 20">
+                <path *ngIf="passwordRequirements.minLength" fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"></path>
+                <path *ngIf="!passwordRequirements.minLength" fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8 7a1 1 0 000 2h4a1 1 0 100-2H8z" clip-rule="evenodd"></path>
+              </svg>
+              Mínimo 8 caracteres
+            </div>
+            <div class="flex items-center text-xs" [class.text-green-600]="passwordRequirements.hasNumber" [class.text-gray-500]="!passwordRequirements.hasNumber">
+              <svg class="w-4 h-4 mr-1" fill="currentColor" viewBox="0 0 20 20">
+                <path *ngIf="passwordRequirements.hasNumber" fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"></path>
+                <path *ngIf="!passwordRequirements.hasNumber" fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8 7a1 1 0 000 2h4a1 1 0 100-2H8z" clip-rule="evenodd"></path>
+              </svg>
+              Al menos 1 número
+            </div>
+            <div class="flex items-center text-xs" [class.text-green-600]="passwordRequirements.hasSpecial" [class.text-gray-500]="!passwordRequirements.hasSpecial">
+              <svg class="w-4 h-4 mr-1" fill="currentColor" viewBox="0 0 20 20">
+                <path *ngIf="passwordRequirements.hasSpecial" fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"></path>
+                <path *ngIf="!passwordRequirements.hasSpecial" fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8 7a1 1 0 000 2h4a1 1 0 100-2H8z" clip-rule="evenodd"></path>
+              </svg>
+              Al menos 1 carácter especial (!&#64;#$%...)
+            </div>
+            <div class="flex items-center text-xs" [class.text-green-600]="passwordRequirements.hasUpperCase" [class.text-gray-500]="!passwordRequirements.hasUpperCase">
+              <svg class="w-4 h-4 mr-1" fill="currentColor" viewBox="0 0 20 20">
+                <path *ngIf="passwordRequirements.hasUpperCase" fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"></path>
+                <path *ngIf="!passwordRequirements.hasUpperCase" fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8 7a1 1 0 000 2h4a1 1 0 100-2H8z" clip-rule="evenodd"></path>
+              </svg>
+              Al menos 1 mayúscula
+            </div>
+            <div class="flex items-center text-xs" [class.text-green-600]="passwordRequirements.hasLowerCase" [class.text-gray-500]="!passwordRequirements.hasLowerCase">
+              <svg class="w-4 h-4 mr-1" fill="currentColor" viewBox="0 0 20 20">
+                <path *ngIf="passwordRequirements.hasLowerCase" fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"></path>
+                <path *ngIf="!passwordRequirements.hasLowerCase" fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8 7a1 1 0 000 2h4a1 1 0 100-2H8z" clip-rule="evenodd"></path>
+              </svg>
+              Al menos 1 minúscula
+            </div>
+          </div>
+        </div>
+
+        <div>
+          <label for="confirmPassword" class="block text-sm font-medium text-gray-700">
+            Confirmar contraseña *
+          </label>
+          <div class="relative">
+            <input
+              id="confirmPassword"
+              name="confirmPassword"
+              [type]="showConfirmPassword ? 'text' : 'password'"
+              required
+              [(ngModel)]="confirmPassword"
+              class="mt-1 appearance-none relative block w-full px-3 py-2 pr-10 border border-gray-300 rounded-md focus:outline-none focus:ring-indigo-500 focus:border-indigo-500"
+              placeholder="Repite tu contraseña"
+            />
+            <button
+              type="button"
+              (click)="toggleConfirmPasswordVisibility()"
+              class="absolute inset-y-0 right-0 pr-3 flex items-center"
+            >
+              <svg *ngIf="!showConfirmPassword" class="h-5 w-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path>
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"></path>
+              </svg>
+              <svg *ngIf="showConfirmPassword" class="h-5 w-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.543-7a9.97 9.97 0 011.563-3.029m5.858.908a3 3 0 114.243 4.243M9.878 9.878l4.242 4.242M9.88 9.88l-3.29-3.29m7.532 7.532l3.29 3.29M3 3l3.59 3.59m0 0A9.953 9.953 0 0112 5c4.478 0 8.268 2.943 9.543 7a10.025 10.025 0 01-4.132 5.411m0 0L21 21"></path>
+              </svg>
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- PASO 2: Ubicación y Datos Personales (solo adoptantes) -->
+      <div *ngIf="currentStep === 2 && role === 'adoptante'" class="rounded-md shadow-sm space-y-4">
+        <div>
+          <label for="country" class="block text-sm font-medium text-gray-700">
+            País *
+          </label>
+          <input
+            id="country"
+            name="country"
+            type="text"
+            required
+            [(ngModel)]="country"
+            class="mt-1 appearance-none relative block w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-indigo-500 focus:border-indigo-500"
+            placeholder="Perú"
+          />
+        </div>
+
+        <div class="grid grid-cols-2 gap-4">
+          <div>
+            <label for="province" class="block text-sm font-medium text-gray-700">
+              Provincia *
+            </label>
+            <input
+              id="province"
+              name="province"
+              type="text"
+              required
+              [(ngModel)]="province"
+              class="mt-1 appearance-none relative block w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-indigo-500 focus:border-indigo-500"
+              placeholder="Lima"
+            />
+          </div>
+          <div>
+            <label for="district" class="block text-sm font-medium text-gray-700">
+              Distrito *
+            </label>
+            <input
+              id="district"
+              name="district"
+              type="text"
+              required
+              [(ngModel)]="district"
+              class="mt-1 appearance-none relative block w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-indigo-500 focus:border-indigo-500"
+              placeholder="Miraflores"
+            />
+          </div>
+        </div>
+
+        <div>
+          <label for="address" class="block text-sm font-medium text-gray-700">
+            Dirección *
+          </label>
+          <input
+            id="address"
+            name="address"
+            type="text"
+            required
+            [(ngModel)]="address"
+            class="mt-1 appearance-none relative block w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-indigo-500 focus:border-indigo-500"
+            placeholder="Calle / Avenida / Jirón"
+          />
+        </div>
+
+        <div class="grid grid-cols-2 gap-4">
+          <div>
+            <label for="dni" class="block text-sm font-medium text-gray-700">
+              DNI *
+            </label>
+            <input
+              id="dni"
+              name="dni"
+              type="text"
+              required
+              [(ngModel)]="dni"
+              maxlength="8"
+              class="mt-1 appearance-none relative block w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-indigo-500 focus:border-indigo-500"
+              placeholder="12345678"
+            />
+          </div>
+          <div>
+            <label for="birthDate" class="block text-sm font-medium text-gray-700">
+              Fecha de nacimiento *
+            </label>
+            <input
+              id="birthDate"
+              name="birthDate"
+              type="date"
+              required
+              [(ngModel)]="birthDate"
+              class="mt-1 appearance-none relative block w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-indigo-500 focus:border-indigo-500"
+            />
+          </div>
+        </div>
+
+        <div>
+          <label for="occupation" class="block text-sm font-medium text-gray-700">
+            Ocupación *
+          </label>
+          <input
+            id="occupation"
+            name="occupation"
+            type="text"
+            required
+            [(ngModel)]="occupation"
+            class="mt-1 appearance-none relative block w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-indigo-500 focus:border-indigo-500"
+            placeholder="Ingeniero, Estudiante, etc."
+          />
+        </div>
+      </div>
+
+      <!-- PASO 3: Vivienda y Motivación (solo adoptantes) -->
+      <div *ngIf="currentStep === 3 && role === 'adoptante'" class="rounded-md shadow-sm space-y-4">
+        <div class="grid grid-cols-2 gap-4">
+          <div>
+            <label for="homeType" class="block text-sm font-medium text-gray-700">
+              Tipo de vivienda *
+            </label>
+            <select
+              id="homeType"
+              name="homeType"
+              required
+              [(ngModel)]="homeType"
+              class="mt-1 appearance-none relative block w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-indigo-500 focus:border-indigo-500"
+            >
+              <option value="">Selecciona</option>
+              <option value="casa">Casa</option>
+              <option value="departamento">Departamento</option>
+              <option value="quinta">Quinta</option>
+              <option value="otro">Otro</option>
+            </select>
+          </div>
+          <div>
+            <label for="hasYard" class="block text-sm font-medium text-gray-700">
+              ¿Tiene patio? *
+            </label>
+            <select
+              id="hasYard"
+              name="hasYard"
+              required
+              [(ngModel)]="hasYard"
+              class="mt-1 appearance-none relative block w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-indigo-500 focus:border-indigo-500"
+            >
+              <option [value]="null">Selecciona</option>
+              <option [value]="true">Sí</option>
+              <option [value]="false">No</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="grid grid-cols-2 gap-4">
+          <div>
+            <label for="householdMembers" class="block text-sm font-medium text-gray-700">
+              Miembros en el hogar *
+            </label>
+            <input
+              id="householdMembers"
+              name="householdMembers"
+              type="number"
+              required
+              [(ngModel)]="householdMembers"
+              min="1"
+              class="mt-1 appearance-none relative block w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-indigo-500 focus:border-indigo-500"
+              placeholder="Número de personas"
+            />
+          </div>
+          <div>
+            <label for="hasPets" class="block text-sm font-medium text-gray-700">
+              ¿Tiene otras mascotas? *
+            </label>
+            <select
+              id="hasPets"
+              name="hasPets"
+              required
+              [(ngModel)]="hasPets"
+              class="mt-1 appearance-none relative block w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-indigo-500 focus:border-indigo-500"
+            >
+              <option [value]="null">Selecciona</option>
+              <option [value]="true">Sí</option>
+              <option [value]="false">No</option>
+            </select>
+          </div>
+        </div>
+
+        <div>
+          <label for="petExperience" class="block text-sm font-medium text-gray-700">
+            Experiencia con mascotas *
+          </label>
+          <textarea
+            id="petExperience"
+            name="petExperience"
+            required
+            [(ngModel)]="petExperience"
+            rows="3"
+            class="mt-1 appearance-none relative block w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-indigo-500 focus:border-indigo-500"
+            placeholder="Describe tu experiencia cuidando mascotas..."
+          ></textarea>
+        </div>
+
+        <div>
+          <label for="whyAdopt" class="block text-sm font-medium text-gray-700">
+            ¿Por qué quieres adoptar? *
+          </label>
+          <textarea
+            id="whyAdopt"
+            name="whyAdopt"
+            required
+            [(ngModel)]="whyAdopt"
+            rows="3"
+            class="mt-1 appearance-none relative block w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-indigo-500 focus:border-indigo-500"
+            placeholder="Cuéntanos tu motivación para adoptar..."
+          ></textarea>
+        </div>
+
+        <div class="grid grid-cols-2 gap-4">
+          <div>
+            <label for="availabilityHours" class="block text-sm font-medium text-gray-700">
+              Horas disponibles al día *
+            </label>
+            <input
+              id="availabilityHours"
+              name="availabilityHours"
+              type="number"
+              required
+              [(ngModel)]="availabilityHours"
+              min="1"
+              max="24"
+              class="mt-1 appearance-none relative block w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-indigo-500 focus:border-indigo-500"
+              placeholder="Horas por día"
+            />
+          </div>
+          <div>
+            <label for="economicStatus" class="block text-sm font-medium text-gray-700">
+              Situación económica *
+            </label>
+            <select
+              id="economicStatus"
+              name="economicStatus"
+              required
+              [(ngModel)]="economicStatus"
+              class="mt-1 appearance-none relative block w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-indigo-500 focus:border-indigo-500"
+            >
+              <option value="">Selecciona</option>
+              <option value="estable">Estable</option>
+              <option value="inestable">Inestable</option>
+              <option value="en_desarrollo">En desarrollo</option>
+            </select>
+          </div>
+        </div>
+      </div>
+
+      <div *ngIf="errorMessage" class="text-red-600 text-sm text-center">
+        {{ errorMessage }}
+      </div>
+
+      <!-- Botones de navegación -->
+      <div class="flex justify-between">
+        <button
+          *ngIf="currentStep > 1 && role === 'adoptante'"
+          type="button"
+          (click)="prevStep()"
+          class="flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
+        >
+          <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path>
+          </svg>
+          Anterior
+        </button>
+        <div *ngIf="currentStep === 1 || role === 'rescatista'"></div>
+
+        <button
+          *ngIf="currentStep < totalSteps && role === 'adoptante'"
+          type="button"
+          (click)="nextStep()"
+          class="ml-auto flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
+        >
+          Siguiente
+          <svg class="w-5 h-5 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path>
+          </svg>
+        </button>
+
+        <button
+          *ngIf="currentStep === totalSteps || role === 'rescatista'"
+          type="submit"
+          [disabled]="isLoading"
+          class="ml-auto w-full flex justify-center py-2 px-4 border border-transparent text-sm font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 disabled:opacity-50"
+        >
+          <span *ngIf="!isLoading">Registrarse</span>
+          <span *ngIf="isLoading">Creando cuenta...</span>
+        </button>
+      </div>
+
+      <div class="text-center">
+        <p class="text-sm text-gray-600">
+          ¿Ya tienes cuenta?
+          <a routerLink="/login" class="font-medium text-indigo-600 hover:text-indigo-500">
+            Inicia sesión aquí
+          </a>
+        </p>
+      </div>
+    </form>
+  </div>
+</div>

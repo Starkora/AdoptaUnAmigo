@@ -1,0 +1,238 @@
+<div class="min-h-screen bg-gray-50">
+  <!-- Navigation -->
+  <nav class="bg-white shadow-sm sticky top-0 z-50">
+    <div class="container mx-auto px-4 py-4">
+      <div class="flex justify-between items-center">
+        <a routerLink="/" class="text-2xl font-bold text-indigo-600 flex items-center gap-2">
+          <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" />
+          </svg>
+          <span class="hidden sm:inline">Mensajes</span>
+        </a>
+        <div class="flex gap-4 items-center">
+          <a routerLink="/dogs" class="text-gray-700 hover:text-indigo-600 transition">
+            Perros Disponibles
+          </a>
+          <a routerLink="/dashboard/adoptante" class="text-gray-700 hover:text-indigo-600 transition">
+            Mi Dashboard
+          </a>
+        </div>
+      </div>
+    </div>
+  </nav>
+
+  <!-- Loading State -->
+  <div *ngIf="loading" class="flex justify-center items-center h-[calc(100vh-80px)]">
+    <div class="animate-spin rounded-full h-16 w-16 border-b-2 border-indigo-600"></div>
+  </div>
+
+  <!-- Chat Container -->
+  <div *ngIf="!loading" class="container mx-auto px-4 py-6 h-[calc(100vh-96px)]">
+    <div class="bg-white rounded-lg shadow-lg overflow-hidden h-full flex">
+      <!-- Conversations List - Desktop Always, Mobile Conditional -->
+      <div 
+        class="w-full md:w-96 border-r border-gray-200 flex flex-col"
+        [class.hidden]="!showMobileConversations"
+        [class.md:block]="true">
+        <!-- Header -->
+        <div class="p-4 border-b border-gray-200 bg-gradient-to-r from-indigo-600 to-purple-600">
+          <h2 class="text-xl font-bold text-white flex items-center justify-between">
+            <span>Conversaciones</span>
+            <span *ngIf="unreadCount > 0" class="bg-white text-indigo-600 px-2.5 py-1 rounded-full text-sm font-bold">
+              {{ unreadCount }}
+            </span>
+          </h2>
+          <p class="text-indigo-100 text-sm mt-1">{{ conversations.length }} contactos</p>
+        </div>
+
+        <!-- Conversations List -->
+        <div class="flex-1 overflow-y-auto">
+          <!-- Empty State -->
+          <div *ngIf="conversations.length === 0" class="p-8 text-center">
+            <svg class="w-16 h-16 text-gray-300 mx-auto mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" />
+            </svg>
+            <h3 class="text-lg font-semibold text-gray-900 mb-2">No hay conversaciones</h3>
+            <p class="text-gray-500 text-sm">Comienza a chatear con rescatistas o adoptantes</p>
+            <a routerLink="/dogs" class="mt-4 inline-block px-6 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700">
+              Ver Perros Disponibles
+            </a>
+          </div>
+
+          <!-- Conversation Items -->
+          <button
+            *ngFor="let conversation of conversations"
+            (click)="selectConversation(conversation)"
+            [class.bg-indigo-50]="selectedConversation?.user_id === conversation.user_id"
+            [class.border-l-4]="selectedConversation?.user_id === conversation.user_id"
+            [class.border-indigo-600]="selectedConversation?.user_id === conversation.user_id"
+            class="w-full p-4 hover:bg-gray-50 transition border-b border-gray-100 text-left flex gap-3">
+            <!-- Avatar -->
+            <div class="relative flex-shrink-0">
+              <img 
+                [src]="getUserAvatar(conversation)" 
+                [alt]="getUserName(conversation)"
+                class="w-12 h-12 rounded-full object-cover"
+              />
+              <span 
+                *ngIf="conversation.unread_count > 0"
+                class="absolute -top-1 -right-1 bg-red-500 text-white text-xs font-bold rounded-full w-5 h-5 flex items-center justify-center">
+                {{ conversation.unread_count }}
+              </span>
+            </div>
+
+            <!-- Content -->
+            <div class="flex-1 min-w-0">
+              <div class="flex justify-between items-start mb-1">
+                <h3 class="font-semibold text-gray-900 truncate">
+                  {{ getUserName(conversation) }}
+                </h3>
+                <span class="text-xs text-gray-500 flex-shrink-0 ml-2">
+                  {{ formatTime(conversation.last_message_date) }}
+                </span>
+              </div>
+              
+              <div *ngIf="conversation.dog_name" class="flex items-center gap-1 text-xs text-indigo-600 mb-1">
+                <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" />
+                </svg>
+                <span class="truncate">{{ conversation.dog_name }}</span>
+              </div>
+
+              <p 
+                class="text-sm text-gray-600 truncate"
+                [class.font-semibold]="conversation.unread_count > 0">
+                {{ conversation.last_message }}
+              </p>
+            </div>
+          </button>
+        </div>
+      </div>
+
+      <!-- Messages Panel - Desktop Always, Mobile Conditional -->
+      <div 
+        class="flex-1 flex flex-col"
+        [class.hidden]="showMobileConversations"
+        [class.md:flex]="true">
+        <!-- No Conversation Selected -->
+        <div *ngIf="!selectedConversation" class="flex-1 flex items-center justify-center p-8 text-center">
+          <div>
+            <svg class="w-24 h-24 text-gray-300 mx-auto mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 10h.01M12 10h.01M16 10h.01M9 16H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-5l-5 5v-5z" />
+            </svg>
+            <h3 class="text-xl font-semibold text-gray-900 mb-2">Selecciona una conversación</h3>
+            <p class="text-gray-500">Elige un contacto de la lista para comenzar a chatear</p>
+          </div>
+        </div>
+
+        <!-- Conversation Selected -->
+        <div *ngIf="selectedConversation" class="flex-1 flex flex-col h-full">
+          <!-- Chat Header -->
+          <div class="p-4 border-b border-gray-200 bg-gradient-to-r from-indigo-600 to-purple-600 flex items-center gap-3">
+            <!-- Back Button Mobile -->
+            <button 
+              (click)="backToConversations()"
+              class="md:hidden text-white hover:text-indigo-100">
+              <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" />
+              </svg>
+            </button>
+
+            <!-- Avatar -->
+            <img 
+              [src]="getUserAvatar(selectedConversation)" 
+              [alt]="getUserName(selectedConversation)"
+              class="w-10 h-10 rounded-full object-cover"
+            />
+
+            <!-- Info -->
+            <div class="flex-1">
+              <h3 class="font-semibold text-white">{{ getUserName(selectedConversation) }}</h3>
+              <div *ngIf="selectedConversation.dog_name" class="flex items-center gap-1 text-sm text-indigo-100">
+                <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" />
+                </svg>
+                <span>{{ selectedConversation.dog_name }}</span>
+              </div>
+            </div>
+
+            <!-- Actions -->
+            <button class="text-white hover:text-indigo-100">
+              <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 5v.01M12 12v.01M12 19v.01M12 6a1 1 0 110-2 1 1 0 010 2zm0 7a1 1 0 110-2 1 1 0 010 2zm0 7a1 1 0 110-2 1 1 0 010 2z" />
+              </svg>
+            </button>
+          </div>
+
+          <!-- Messages Area -->
+          <div 
+            #messagesContainer
+            class="flex-1 overflow-y-auto p-4 space-y-4 bg-gray-50">
+            <!-- Loading Messages -->
+            <div *ngIf="loadingMessages" class="flex justify-center py-8">
+              <div class="animate-spin rounded-full h-8 w-8 border-b-2 border-indigo-600"></div>
+            </div>
+
+            <!-- Messages -->
+            <div 
+              *ngFor="let message of messages"
+              [class.flex]="true"
+              [class.justify-end]="isOwnMessage(message)"
+              [class.justify-start]="!isOwnMessage(message)">
+              <div 
+                [class.bg-indigo-600]="isOwnMessage(message)"
+                [class.text-white]="isOwnMessage(message)"
+                [class.bg-white]="!isOwnMessage(message)"
+                [class.text-gray-900]="!isOwnMessage(message)"
+                class="max-w-xs md:max-w-md lg:max-w-lg px-4 py-2 rounded-2xl shadow-sm">
+                <p class="break-words whitespace-pre-wrap">{{ message.message }}</p>
+                <div 
+                  [class.text-indigo-100]="isOwnMessage(message)"
+                  [class.text-gray-500]="!isOwnMessage(message)"
+                  class="text-xs mt-1 flex items-center gap-1">
+                  <span>{{ formatMessageTime(message.created_at) }}</span>
+                  <span *ngIf="isOwnMessage(message) && message.is_read">
+                    <svg class="w-3 h-3" fill="currentColor" viewBox="0 0 20 20">
+                      <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd" />
+                    </svg>
+                  </span>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Message Input -->
+          <div class="p-4 bg-white border-t border-gray-200">
+            <form (submit)="sendMessage()" class="flex gap-2">
+              <input
+                type="text"
+                [(ngModel)]="newMessage"
+                name="newMessage"
+                [disabled]="sendingMessage"
+                placeholder="Escribe un mensaje..."
+                class="flex-1 px-4 py-3 border border-gray-300 rounded-full focus:outline-none focus:ring-2 focus:ring-indigo-600 focus:border-transparent disabled:bg-gray-100"
+              />
+              <button
+                type="submit"
+                [disabled]="!newMessage.trim() || sendingMessage"
+                class="px-6 py-3 bg-indigo-600 text-white rounded-full hover:bg-indigo-700 disabled:bg-gray-400 disabled:cursor-not-allowed transition flex items-center gap-2">
+                <svg 
+                  *ngIf="!sendingMessage"
+                  class="w-5 h-5" 
+                  fill="none" 
+                  stroke="currentColor" 
+                  viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8" />
+                </svg>
+                <div 
+                  *ngIf="sendingMessage"
+                  class="animate-spin rounded-full h-5 w-5 border-b-2 border-white">
+                </div>
+              </button>
+            </form>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

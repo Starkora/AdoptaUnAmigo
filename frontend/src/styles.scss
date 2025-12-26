@@ -1,0 +1,53 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* You can add global styles to this file, and also import other style files */
+
+/* Importar estilos de ngx-toastr */
+@import 'ngx-toastr/toastr';
+
+/* Importar estilos de Swiper */
+@import 'swiper/css';
+@import 'swiper/css/navigation';
+@import 'swiper/css/pagination';
+@import 'swiper/css/zoom';
+
+/* Estilos personalizados para toastr */
+.toast-success {
+  background-color: #10b981 !important;
+}
+
+.toast-error {
+  background-color: #ef4444 !important;
+}
+
+.toast-info {
+  background-color: #3b82f6 !important;
+}
+
+.toast-warning {
+  background-color: #f59e0b !important;
+}
+
+.toast-container .ngx-toastr {
+  box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+  border-radius: 0.5rem;
+  padding: 1rem 1.5rem;
+}
+
+/* Ajustar espaciado entre ícono y texto */
+.toast-container .ngx-toastr .toast-message {
+  margin-left: 1.125rem;
+}
+
+.toast-container .toast-title {
+  font-weight: 600;
+  font-size: 1rem;
+  margin-left: 0.75rem;
+}
+
+.toast-container .toast-message {
+  font-size: 0.875rem;
+  line-height: 1.5;
+}

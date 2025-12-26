@@ -1,0 +1,31 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100">
+  <defs>
+    <linearGradient id="grad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#6366f1;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#8b5cf6;stop-opacity:1" />
+    </linearGradient>
+  </defs>
+  <!-- Fondo circular -->
+  <circle cx="50" cy="50" r="48" fill="url(#grad)"/>
+  <!-- Cabeza del perro -->
+  <ellipse cx="50" cy="55" rx="25" ry="28" fill="white"/>
+  <!-- Orejas -->
+  <ellipse cx="30" cy="35" rx="10" ry="20" fill="white" transform="rotate(-30 30 35)"/>
+  <ellipse cx="70" cy="35" rx="10" ry="20" fill="white" transform="rotate(30 70 35)"/>
+  <!-- Manchas en orejas -->
+  <ellipse cx="28" cy="30" rx="7" ry="12" fill="#6366f1" transform="rotate(-30 28 30)"/>
+  <ellipse cx="72" cy="30" rx="7" ry="12" fill="#6366f1" transform="rotate(30 72 30)"/>
+  <!-- Ojos -->
+  <circle cx="42" cy="50" r="4" fill="#1f2937"/>
+  <circle cx="58" cy="50" r="4" fill="#1f2937"/>
+  <!-- Brillo en ojos -->
+  <circle cx="43" cy="49" r="1.5" fill="white"/>
+  <circle cx="59" cy="49" r="1.5" fill="white"/>
+  <!-- Nariz -->
+  <ellipse cx="50" cy="62" rx="5" ry="4" fill="#1f2937"/>
+  <!-- Boca -->
+  <path d="M 50 62 Q 45 66 42 64" stroke="#1f2937" stroke-width="2" fill="none" stroke-linecap="round"/>
+  <path d="M 50 62 Q 55 66 58 64" stroke="#1f2937" stroke-width="2" fill="none" stroke-linecap="round"/>
+  <!-- Lengua -->
+  <ellipse cx="50" cy="69" rx="4" ry="3" fill="#ec4899"/>
+</svg>

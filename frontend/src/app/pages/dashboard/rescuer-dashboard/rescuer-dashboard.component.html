@@ -1,0 +1,869 @@
+<div class="min-h-screen bg-gray-50">
+  <!-- Navigation -->
+  <nav class="bg-white shadow-sm">
+    <div class="container mx-auto px-4 py-4">
+      <div class="flex justify-between items-center">
+        <a routerLink="/" class="text-2xl font-bold text-indigo-600 flex items-center gap-2">
+          <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" />
+          </svg>
+          AdoptaUnAmigo
+        </a>
+        <div class="flex gap-4 items-center">
+          <a routerLink="/dogs" class="text-gray-700 hover:text-indigo-600 transition">
+            Perros Disponibles
+          </a>
+          <span class="text-gray-700 font-medium">
+            Hola, {{ currentUserName || 'Usuario' }}
+          </span>
+          <a routerLink="/chat" class="text-gray-700 hover:text-indigo-600 transition flex items-center gap-1 relative">
+            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" />
+            </svg>
+            Mensajes
+            <span *ngIf="unreadCount > 0" class="absolute -top-1 -right-2 bg-red-500 text-white text-xs font-bold rounded-full h-5 w-5 flex items-center justify-center">
+              {{ unreadCount > 9 ? '9+' : unreadCount }}
+            </span>
+          </a>
+          <a routerLink="/dashboard/rescatista" class="text-gray-700 hover:text-indigo-600 transition flex items-center gap-1">
+            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
+            </svg>
+            Dashboard
+          </a>
+          <a routerLink="/profile" class="text-gray-700 hover:text-indigo-600 transition flex items-center gap-1">
+            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+            </svg>
+            Mi Cuenta
+          </a>
+          <button 
+            (click)="logout()" 
+            class="text-gray-700 hover:text-red-600 transition flex items-center gap-1">
+            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
+            </svg>
+            Salir
+          </button>
+        </div>
+      </div>
+    </div>
+  </nav>
+
+  <!-- Loading State -->
+  <div *ngIf="loading" class="flex justify-center items-center min-h-screen">
+    <div class="animate-spin rounded-full h-16 w-16 border-b-2 border-blue-600"></div>
+  </div>
+
+  <!-- Main Content -->
+  <div *ngIf="!loading" class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+    <!-- Header -->
+    <div class="flex justify-between items-center mb-8">
+      <div>
+        <h1 class="text-3xl font-bold text-gray-900">Panel de Rescatista</h1>
+        <p class="text-gray-600 mt-1">Gestiona tus perros y solicitudes de adopción</p>
+      </div>
+      <button 
+        (click)="openDogForm()"
+        class="bg-blue-600 text-white px-6 py-3 rounded-lg font-semibold hover:bg-blue-700 flex items-center"
+      >
+        <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path>
+        </svg>
+        Agregar Perro
+      </button>
+    </div>
+
+    <!-- Error Message -->
+    <div *ngIf="error" class="mb-6 bg-red-50 border border-red-200 rounded-lg p-4">
+      <p class="text-red-700">{{ error }}</p>
+    </div>
+
+    <!-- Stats Cards -->
+    <div class="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
+      <div class="bg-white rounded-lg shadow-md p-6">
+        <div class="flex items-center justify-between">
+          <div>
+            <p class="text-gray-600 text-sm font-medium">Total de Perros</p>
+            <p class="text-3xl font-bold text-gray-900 mt-2">{{ stats.totalDogs }}</p>
+          </div>
+          <svg class="w-12 h-12 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"></path>
+          </svg>
+        </div>
+      </div>
+
+      <div class="bg-white rounded-lg shadow-md p-6">
+        <div class="flex items-center justify-between">
+          <div>
+            <p class="text-gray-600 text-sm font-medium">Disponibles</p>
+            <p class="text-3xl font-bold text-green-600 mt-2">{{ stats.availableDogs }}</p>
+          </div>
+          <svg class="w-12 h-12 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+          </svg>
+        </div>
+      </div>
+
+      <div class="bg-white rounded-lg shadow-md p-6">
+        <div class="flex items-center justify-between">
+          <div>
+            <p class="text-gray-600 text-sm font-medium">Solicitudes Pendientes</p>
+            <p class="text-3xl font-bold text-yellow-600 mt-2">{{ stats.pendingRequests }}</p>
+          </div>
+          <svg class="w-12 h-12 text-yellow-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+          </svg>
+        </div>
+      </div>
+
+      <div class="bg-white rounded-lg shadow-md p-6">
+        <div class="flex items-center justify-between">
+          <div>
+            <p class="text-gray-600 text-sm font-medium">Adoptados</p>
+            <p class="text-3xl font-bold text-purple-600 mt-2">{{ stats.adoptedDogs }}</p>
+          </div>
+          <svg class="w-12 h-12 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"></path>
+          </svg>
+        </div>
+      </div>
+    </div>
+
+    <!-- My Dogs Section -->
+    <div class="bg-white rounded-lg shadow-md p-6 mb-6">
+      <h2 class="text-xl font-bold text-gray-900 mb-4">Mis Perros</h2>
+
+      <div *ngIf="myDogs.length === 0" class="text-center py-12">
+        <svg class="w-16 h-16 text-gray-400 mx-auto mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"></path>
+        </svg>
+        <h3 class="text-lg font-semibold text-gray-900 mb-2">No tienes perros registrados</h3>
+        <p class="text-gray-600 mb-4">Agrega tu primer perro para comenzar</p>
+        <button 
+          (click)="openDogForm()"
+          class="bg-blue-600 text-white px-6 py-2 rounded-lg hover:bg-blue-700"
+        >
+          Agregar Perro
+        </button>
+      </div>
+
+      <div *ngIf="myDogs.length > 0" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        <div *ngFor="let dog of myDogs" class="bg-white border border-gray-200 rounded-lg overflow-hidden hover:shadow-lg transition-shadow">
+          <div class="relative">
+            <img 
+              [src]="dog.main_image_url || dog.images?.[0] || 'https://via.placeholder.com/400x300?text=Sin+Imagen'" 
+              [alt]="dog.name"
+              loading="eager"
+              class="w-full h-48 object-contain bg-gray-100"
+              (error)="$any($event.target).src='https://via.placeholder.com/400x300?text=Sin+Imagen'"
+            />
+            <span 
+              [class.bg-green-500]="dog.status === 'disponible'"
+              [class.bg-yellow-500]="dog.status === 'en_proceso'"
+              [class.bg-gray-500]="dog.status === 'adoptado'"
+              class="absolute top-2 right-2 px-3 py-1 rounded-full text-white text-sm font-semibold"
+            >
+              {{ getDogStatusLabel(dog.status) }}
+            </span>
+          </div>
+
+          <div class="p-4">
+            <h3 class="text-lg font-bold text-gray-900 mb-1">{{ dog.name }}</h3>
+            <p class="text-gray-600 text-sm mb-3">{{ dog.breed }}</p>
+
+            <div class="flex items-center text-gray-600 text-sm mb-4">
+              <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"></path>
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"></path>
+              </svg>
+              <span>{{ dog.location }}</span>
+            </div>
+
+            <div class="flex gap-2">
+              <button 
+                [routerLink]="['/dogs', dog.id]"
+                class="flex-1 bg-blue-600 text-white py-2 px-4 rounded-lg text-sm font-semibold hover:bg-blue-700 flex items-center justify-center"
+              >
+                <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path>
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"></path>
+                </svg>
+                Ver
+              </button>
+              <button 
+                (click)="openDogForm(dog)"
+                class="flex-1 bg-yellow-600 text-white py-2 px-4 rounded-lg text-sm font-semibold hover:bg-yellow-700 flex items-center justify-center"
+              >
+                <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path>
+                </svg>
+                Editar
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Adoption Requests Section -->
+    <div class="bg-white rounded-lg shadow-md p-6">
+      <h2 class="text-xl font-bold text-gray-900 mb-4">Solicitudes de Adopción</h2>
+
+      <div *ngIf="adoptionRequests.length === 0" class="text-center py-12">
+        <svg class="w-16 h-16 text-gray-400 mx-auto mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
+        </svg>
+        <h3 class="text-lg font-semibold text-gray-900 mb-2">No hay solicitudes</h3>
+        <p class="text-gray-600">Aún no tienes solicitudes de adopción</p>
+      </div>
+
+      <div *ngIf="adoptionRequests.length > 0" class="space-y-4">
+        <div *ngFor="let request of adoptionRequests" class="border border-gray-200 rounded-lg p-4">
+          <div class="flex items-start justify-between">
+            <div class="flex-1">
+              <div class="flex items-center mb-2">
+                <h3 class="text-lg font-bold text-gray-900 mr-3">
+                  {{ request.dog?.name || 'Perro Desconocido' }}
+                </h3>
+                <span 
+                  [class.bg-yellow-100]="request.status === 'pendiente'"
+                  [class.text-yellow-800]="request.status === 'pendiente'"
+                  [class.bg-green-100]="request.status === 'aprobada'"
+                  [class.text-green-800]="request.status === 'aprobada'"
+                  [class.bg-red-100]="request.status === 'rechazada'"
+                  [class.text-red-800]="request.status === 'rechazada'"
+                  class="px-3 py-1 rounded-full text-sm font-semibold"
+                >
+                  {{ getStatusLabel(request.status) }}
+                </span>
+              </div>
+
+              <div class="flex items-center text-gray-600 mb-2">
+                <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path>
+                </svg>
+                <span class="font-medium">{{ (request.adopter?.first_name || '') + ' ' + (request.adopter?.last_name || '') || 'Adoptante Desconocido' }}</span>
+              </div>
+
+              <div class="flex items-center text-gray-600 text-sm">
+                <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
+                </svg>
+                <span>{{ request.created_at | date:'dd/MM/yyyy' }}</span>
+              </div>
+
+              <p *ngIf="request.message" class="mt-3 text-gray-700 text-sm bg-gray-50 p-3 rounded">
+                {{ request.message }}
+              </p>
+            </div>
+
+            <div *ngIf="request.status === 'pendiente'" class="flex flex-col gap-2 ml-4">
+              <button 
+                (click)="viewAdopterInfo(request)"
+                class="bg-indigo-600 text-white px-4 py-2 rounded-lg text-sm font-semibold hover:bg-indigo-700 flex items-center justify-center"
+              >
+                <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                </svg>
+                Ver Información
+              </button>
+              <div class="flex gap-2">
+                <button 
+                  (click)="updateRequestStatus(request.id, 'aprobada')"
+                  class="bg-green-600 text-white px-4 py-2 rounded-lg text-sm font-semibold hover:bg-green-700 flex items-center"
+                >
+                  <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+                  </svg>
+                  Aprobar
+                </button>
+                <button 
+                  (click)="openRejectModalForRequest(request.id)"
+                  class="bg-red-600 text-white px-4 py-2 rounded-lg text-sm font-semibold hover:bg-red-700 flex items-center"
+                >
+                  <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                  </svg>
+                  Rechazar
+                </button>
+              </div>
+            </div>
+
+            <!-- Message Button for Approved Requests -->
+            <div *ngIf="request.status === 'aprobada'" class="ml-4">
+              <button 
+                (click)="sendMessageToAdopter(request)"
+                class="bg-indigo-600 text-white px-4 py-2 rounded-lg text-sm font-semibold hover:bg-indigo-700 flex items-center"
+              >
+                <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" />
+                </svg>
+                Enviar Mensaje
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Dog Form Modal -->
+  <div *ngIf="showDogForm" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+    <div class="bg-white rounded-lg max-w-4xl w-full max-h-[90vh] overflow-y-auto my-8">
+      <!-- Modal Header -->
+      <div class="sticky top-0 bg-white flex justify-between items-center p-6 border-b border-gray-200 z-10">
+        <h2 class="text-2xl font-bold text-gray-900">
+          {{ isEditMode ? 'Editar Perro' : 'Agregar Nuevo Perro' }}
+        </h2>
+        <button (click)="closeDogForm()" class="text-gray-400 hover:text-gray-600">
+          <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+          </svg>
+        </button>
+      </div>
+
+      <!-- Modal Body -->
+      <form (ngSubmit)="saveDog()" class="p-6 space-y-6">
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div>
+            <label class="block text-gray-700 font-semibold mb-2">Nombre</label>
+            <input 
+              type="text" 
+              [(ngModel)]="dogForm.name" 
+              name="name"
+              required
+              class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-600 focus:border-transparent"
+              placeholder="Nombre del perro"
+            />
+          </div>
+
+          <div>
+            <label class="block text-gray-700 font-semibold mb-2">Raza</label>
+            <input 
+              type="text" 
+              [(ngModel)]="dogForm.breed" 
+              name="breed"
+              required
+              class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-600 focus:border-transparent"
+              placeholder="Raza del perro"
+            />
+          </div>
+
+          <div>
+            <label class="block text-gray-700 font-semibold mb-2">Edad (años)</label>
+            <input 
+              type="number" 
+              [(ngModel)]="dogForm.age_years" 
+              name="age_years"
+              min="0"
+              class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-600 focus:border-transparent"
+              placeholder="Años"
+            />
+          </div>
+
+          <div>
+            <label class="block text-gray-700 font-semibold mb-2">Edad (meses)</label>
+            <input 
+              type="number" 
+              [(ngModel)]="dogForm.age_months" 
+              name="age_months"
+              min="0"
+              max="11"
+              class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-600 focus:border-transparent"
+              placeholder="Meses"
+            />
+          </div>
+
+          <div>
+            <label class="block text-gray-700 font-semibold mb-2">Tamaño</label>
+            <select 
+              [(ngModel)]="dogForm.size" 
+              name="size"
+              required
+              class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-600 focus:border-transparent"
+            >
+              <option value="pequeño">Pequeño</option>
+              <option value="mediano">Mediano</option>
+              <option value="grande">Grande</option>
+            </select>
+          </div>
+
+          <div>
+            <label class="block text-gray-700 font-semibold mb-2">Género</label>
+            <select 
+              [(ngModel)]="dogForm.gender" 
+              name="gender"
+              required
+              class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-600 focus:border-transparent"
+            >
+              <option value="macho">Macho</option>
+              <option value="hembra">Hembra</option>
+            </select>
+          </div>
+
+          <div>
+            <label class="block text-gray-700 font-semibold mb-2">Ubicación</label>
+            <input 
+              type="text" 
+              [(ngModel)]="dogForm.location" 
+              name="location"
+              required
+              class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-600 focus:border-transparent"
+              placeholder="Ciudad, País"
+            />
+          </div>
+        </div>
+
+        <div>
+          <label class="block text-gray-700 font-semibold mb-2">Descripción</label>
+          <textarea 
+            [(ngModel)]="dogForm.description" 
+            name="description"
+            required
+            rows="3"
+            class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-600 focus:border-transparent"
+            placeholder="Describe al perro..."
+          ></textarea>
+        </div>
+
+        <div>
+          <label class="block text-gray-700 font-semibold mb-2">Historial Médico</label>
+          <textarea 
+            [(ngModel)]="dogForm.medical_history" 
+            name="medical_history"
+            rows="2"
+            class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-600 focus:border-transparent"
+            placeholder="Información médica adicional..."
+          ></textarea>
+        </div>
+
+        <div class="flex gap-6">
+          <label class="flex items-center">
+            <input 
+              type="checkbox" 
+              [(ngModel)]="dogForm.is_vaccinated" 
+              name="is_vaccinated"
+              class="w-5 h-5 text-blue-600 border-gray-300 rounded focus:ring-blue-600"
+            />
+            <span class="ml-2 text-gray-700 font-medium">Vacunado</span>
+          </label>
+
+          <label class="flex items-center">
+            <input 
+              type="checkbox" 
+              [(ngModel)]="dogForm.is_sterilized" 
+              name="is_sterilized"
+              class="w-5 h-5 text-blue-600 border-gray-300 rounded focus:ring-blue-600"
+            />
+            <span class="ml-2 text-gray-700 font-medium">Esterilizado</span>
+          </label>
+        </div>
+
+        <!-- Nuevos campos de información extendida -->
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div>
+            <label class="block text-gray-700 font-semibold mb-2">Nivel de Energía</label>
+            <select 
+              [(ngModel)]="dogForm.energy_level" 
+              name="energy_level"
+              class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-600 focus:border-transparent"
+            >
+              <option value="bajo">Bajo (Tranquilo, poca actividad)</option>
+              <option value="medio">Medio (Activo moderado)</option>
+              <option value="alto">Alto (Muy activo, necesita ejercicio)</option>
+            </select>
+          </div>
+
+          <div>
+            <label class="block text-gray-700 font-semibold mb-2">Experiencia Requerida</label>
+            <select 
+              [(ngModel)]="dogForm.experience_required" 
+              name="experience_required"
+              class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-600 focus:border-transparent"
+            >
+              <option value="ninguna">Ninguna (Apto para principiantes)</option>
+              <option value="basica">Básica</option>
+              <option value="intermedia">Intermedia</option>
+              <option value="avanzada">Avanzada (Solo expertos)</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+          <div>
+            <label class="block text-gray-700 font-semibold mb-2">Bueno con Niños</label>
+            <select 
+              [(ngModel)]="dogForm.good_with_kids" 
+              name="good_with_kids"
+              class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-600 focus:border-transparent"
+            >
+              <option [ngValue]="null">No se sabe</option>
+              <option [ngValue]="true">Sí</option>
+              <option [ngValue]="false">No</option>
+            </select>
+          </div>
+
+          <div>
+            <label class="block text-gray-700 font-semibold mb-2">Bueno con Perros</label>
+            <select 
+              [(ngModel)]="dogForm.good_with_dogs" 
+              name="good_with_dogs"
+              class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-600 focus:border-transparent"
+            >
+              <option [ngValue]="null">No se sabe</option>
+              <option [ngValue]="true">Sí</option>
+              <option [ngValue]="false">No</option>
+            </select>
+          </div>
+
+          <div>
+            <label class="block text-gray-700 font-semibold mb-2">Bueno con Gatos</label>
+            <select 
+              [(ngModel)]="dogForm.good_with_cats" 
+              name="good_with_cats"
+              class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-600 focus:border-transparent"
+            >
+              <option [ngValue]="null">No se sabe</option>
+              <option [ngValue]="true">Sí</option>
+              <option [ngValue]="false">No</option>
+            </select>
+          </div>
+        </div>
+
+        <div>
+          <label class="block text-gray-700 font-semibold mb-2">Necesidades Especiales</label>
+          <textarea 
+            [(ngModel)]="dogForm.special_needs" 
+            name="special_needs"
+            rows="2"
+            class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-600 focus:border-transparent"
+            placeholder="Describe cualquier cuidado especial, medicación, o necesidad particular..."
+          ></textarea>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div>
+            <label class="block text-gray-700 font-semibold mb-2">Nivel de Urgencia</label>
+            <select 
+              [(ngModel)]="dogForm.urgency_level" 
+              name="urgency_level"
+              class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-600 focus:border-transparent"
+            >
+              <option value="normal">Normal</option>
+              <option value="alto">Prioridad Alta</option>
+              <option value="urgente">Urgente (Necesita hogar inmediato)</option>
+            </select>
+          </div>
+
+          <div>
+            <label class="block text-gray-700 font-semibold mb-2">URL de Video (opcional)</label>
+            <input 
+              type="url" 
+              [(ngModel)]="dogForm.video_url" 
+              name="video_url"
+              class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-600 focus:border-transparent"
+              placeholder="https://youtube.com/... o enlace de video"
+            />
+          </div>
+        </div>
+
+        <div>
+          <label class="block text-gray-700 font-semibold mb-2">Imágenes</label>
+          <input 
+            type="file" 
+            (change)="onFileSelected($event)"
+            accept="image/*"
+            multiple
+            class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-600 focus:border-transparent"
+          />
+          
+          <div *ngIf="previewUrls.length > 0" class="mt-4 grid grid-cols-4 gap-2">
+            <div *ngFor="let url of previewUrls; let i = index" class="relative">
+              <img [src]="url" class="w-full h-20 object-cover rounded" />
+              <button 
+                type="button"
+                (click)="removeImage(i)"
+                class="absolute -top-2 -right-2 bg-red-600 text-white rounded-full w-6 h-6 flex items-center justify-center hover:bg-red-700"
+              >
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                </svg>
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <div *ngIf="uploadingImages" class="bg-blue-50 border border-blue-200 rounded-lg p-4 text-center">
+          <div class="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600 mx-auto mb-2"></div>
+          <p class="text-blue-800">Subiendo imágenes...</p>
+        </div>
+
+        <div class="flex gap-3 pt-4">
+          <button 
+            type="submit"
+            [disabled]="savingDog || uploadingImages"
+            class="flex-1 bg-blue-600 text-white py-3 rounded-lg font-semibold hover:bg-blue-700 disabled:bg-gray-400 disabled:cursor-not-allowed"
+          >
+            {{ savingDog ? 'Guardando...' : (isEditMode ? 'Actualizar' : 'Guardar') }}
+          </button>
+          <button 
+            type="button"
+            (click)="closeDogForm()"
+            class="flex-1 bg-gray-200 text-gray-800 py-3 rounded-lg font-semibold hover:bg-gray-300"
+          >
+            Cancelar
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Modal de Información del Adoptante -->
+  <div *ngIf="showAdopterInfoModal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4 overflow-y-auto">
+    <div class="bg-white rounded-lg max-w-4xl w-full my-8 max-h-[90vh] overflow-y-auto">
+      <!-- Modal Header -->
+      <div class="flex justify-between items-center p-6 border-b border-gray-200 sticky top-0 bg-white z-10">
+        <h2 class="text-2xl font-bold text-gray-900">Información del Adoptante</h2>
+        <button (click)="closeAdopterInfoModal()" class="text-gray-400 hover:text-gray-600">
+          <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+          </svg>
+        </button>
+      </div>
+
+      <!-- Modal Content -->
+      <div *ngIf="selectedAdopter" class="p-6 space-y-6">
+        <!-- Información Personal -->
+        <div class="bg-gray-50 rounded-lg p-4">
+          <h3 class="text-lg font-bold text-gray-900 mb-4 flex items-center">
+            <svg class="w-5 h-5 mr-2 text-indigo-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path>
+            </svg>
+            Información Personal
+          </h3>
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div>
+              <p class="text-sm text-gray-600">Nombre completo</p>
+              <p class="font-semibold text-gray-900">{{ selectedAdopter.first_name }} {{ selectedAdopter.last_name }}</p>
+            </div>
+            <div>
+              <p class="text-sm text-gray-600">Email</p>
+              <p class="font-semibold text-gray-900">{{ maskEmail(selectedAdopter.email) }}</p>
+            </div>
+            <div>
+              <p class="text-sm text-gray-600">Teléfono</p>
+              <p class="font-semibold text-gray-900">{{ maskPhone(selectedAdopter.phone) }}</p>
+            </div>
+            <div>
+              <p class="text-sm text-gray-600">DNI</p>
+              <p class="font-semibold text-gray-900">{{ maskDNI(selectedAdopter.dni) }}</p>
+            </div>
+            <div>
+              <p class="text-sm text-gray-600">Fecha de nacimiento</p>
+              <p class="font-semibold text-gray-900">{{ selectedAdopter.birth_date ? (selectedAdopter.birth_date | date:'dd/MM/yyyy') : 'No especificado' }}</p>
+            </div>
+            <div>
+              <p class="text-sm text-gray-600">Ocupación</p>
+              <p class="font-semibold text-gray-900">{{ selectedAdopter.occupation || 'No especificado' }}</p>
+            </div>
+          </div>
+        </div>
+
+        <!-- Ubicación -->
+        <div class="bg-gray-50 rounded-lg p-4">
+          <h3 class="text-lg font-bold text-gray-900 mb-4 flex items-center">
+            <svg class="w-5 h-5 mr-2 text-indigo-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"></path>
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"></path>
+            </svg>
+            Ubicación
+          </h3>
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div>
+              <p class="text-sm text-gray-600">País</p>
+              <p class="font-semibold text-gray-900">{{ selectedAdopter.country || 'No especificado' }}</p>
+            </div>
+            <div>
+              <p class="text-sm text-gray-600">Provincia</p>
+              <p class="font-semibold text-gray-900">{{ selectedAdopter.province || 'No especificado' }}</p>
+            </div>
+            <div>
+              <p class="text-sm text-gray-600">Distrito</p>
+              <p class="font-semibold text-gray-900">{{ selectedAdopter.district || 'No especificado' }}</p>
+            </div>
+            <div>
+              <p class="text-sm text-gray-600">Dirección</p>
+              <p class="font-semibold text-gray-900">{{ maskAddress(selectedAdopter.address) }}</p>
+            </div>
+          </div>
+        </div>
+
+        <!-- Información de Vivienda -->
+        <div class="bg-gray-50 rounded-lg p-4">
+          <h3 class="text-lg font-bold text-gray-900 mb-4 flex items-center">
+            <svg class="w-5 h-5 mr-2 text-indigo-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"></path>
+            </svg>
+            Información de Vivienda
+          </h3>
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div>
+              <p class="text-sm text-gray-600">Tipo de vivienda</p>
+              <p class="font-semibold text-gray-900 capitalize">{{ selectedAdopter.home_type || 'No especificado' }}</p>
+            </div>
+            <div>
+              <p class="text-sm text-gray-600">¿Tiene patio?</p>
+              <p class="font-semibold text-gray-900">{{ selectedAdopter.has_yard === true ? 'Sí' : (selectedAdopter.has_yard === false ? 'No' : 'No especificado') }}</p>
+            </div>
+            <div>
+              <p class="text-sm text-gray-600">Miembros en el hogar</p>
+              <p class="font-semibold text-gray-900">{{ selectedAdopter.household_members || 'No especificado' }}</p>
+            </div>
+            <div>
+              <p class="text-sm text-gray-600">¿Tiene otras mascotas?</p>
+              <p class="font-semibold text-gray-900">{{ selectedAdopter.has_pets === true ? 'Sí' : (selectedAdopter.has_pets === false ? 'No' : 'No especificado') }}</p>
+            </div>
+          </div>
+        </div>
+
+        <!-- Experiencia y Motivación -->
+        <div class="bg-gray-50 rounded-lg p-4">
+          <h3 class="text-lg font-bold text-gray-900 mb-4 flex items-center">
+            <svg class="w-5 h-5 mr-2 text-indigo-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"></path>
+            </svg>
+            Experiencia y Motivación
+          </h3>
+          <div class="space-y-4">
+            <div>
+              <p class="text-sm text-gray-600 mb-1">Experiencia con mascotas</p>
+              <p class="text-gray-900 bg-white p-3 rounded border border-gray-200">{{ selectedAdopter.pet_experience || 'No especificado' }}</p>
+            </div>
+            <div>
+              <p class="text-sm text-gray-600 mb-1">¿Por qué quiere adoptar?</p>
+              <p class="text-gray-900 bg-white p-3 rounded border border-gray-200">{{ selectedAdopter.why_adopt || 'No especificado' }}</p>
+            </div>
+          </div>
+        </div>
+
+        <!-- Disponibilidad y Economía -->
+        <div class="bg-gray-50 rounded-lg p-4">
+          <h3 class="text-lg font-bold text-gray-900 mb-4 flex items-center">
+            <svg class="w-5 h-5 mr-2 text-indigo-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+            </svg>
+            Disponibilidad y Situación Económica
+          </h3>
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div>
+              <p class="text-sm text-gray-600">Horas disponibles al día</p>
+              <p class="font-semibold text-gray-900">{{ selectedAdopter.availability_hours ? selectedAdopter.availability_hours + ' horas' : 'No especificado' }}</p>
+            </div>
+            <div>
+              <p class="text-sm text-gray-600">Situación económica</p>
+              <p class="font-semibold text-gray-900 capitalize">{{ selectedAdopter.economic_status || 'No especificado' }}</p>
+            </div>
+          </div>
+        </div>
+
+        <!-- Botones de acción -->
+        <div class="flex gap-3 pt-4 border-t border-gray-200">
+          <button 
+            (click)="approveFromModal()"
+            class="flex-1 bg-green-600 text-white py-3 rounded-lg font-semibold hover:bg-green-700 flex items-center justify-center"
+          >
+            <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+            </svg>
+            Aprobar Solicitud
+          </button>
+          <button 
+            (click)="rejectFromModal()"
+            class="flex-1 bg-red-600 text-white py-3 rounded-lg font-semibold hover:bg-red-700 flex items-center justify-center"
+          >
+            <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+            </svg>
+            Rechazar Solicitud
+          </button>
+          <button 
+            (click)="closeAdopterInfoModal()"
+            class="bg-gray-200 text-gray-800 px-6 py-3 rounded-lg font-semibold hover:bg-gray-300"
+          >
+            Cerrar
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal de Motivo de Rechazo -->
+  <div 
+    *ngIf="showRejectModal" 
+    class="fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center p-4"
+    (click)="closeRejectModal()"
+  >
+    <div 
+      class="bg-white rounded-lg shadow-xl max-w-lg w-full p-6 transform transition-all"
+      (click)="$event.stopPropagation()"
+    >
+      <!-- Icono -->
+      <div class="flex items-center justify-center w-16 h-16 bg-red-100 rounded-full mx-auto mb-4">
+        <svg class="w-8 h-8 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+        </svg>
+      </div>
+
+      <!-- Título -->
+      <h3 class="text-xl font-bold text-gray-900 text-center mb-2">
+        Rechazar Solicitud de Adopción
+      </h3>
+
+      <!-- Mensaje -->
+      <p class="text-gray-600 text-center mb-6">
+        Por favor, explica el motivo del rechazo. Esta información será útil para el adoptante.
+      </p>
+
+      <!-- Campo de texto -->
+      <div class="mb-6">
+        <label class="block text-sm font-medium text-gray-700 mb-2">
+          Motivo del rechazo <span class="text-red-500">*</span>
+        </label>
+        <textarea
+          [(ngModel)]="rejectReason"
+          rows="4"
+          placeholder="Ej: No cumple con los requisitos de espacio necesarios para el perro..."
+          class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-transparent resize-none"
+          [disabled]="rejectingRequest"
+        ></textarea>
+        <p class="text-xs text-gray-500 mt-1">
+          Mínimo 10 caracteres requeridos
+        </p>
+      </div>
+
+      <!-- Botones -->
+      <div class="flex gap-3">
+        <button
+          (click)="closeRejectModal()"
+          [disabled]="rejectingRequest"
+          class="flex-1 px-4 py-3 bg-gray-200 text-gray-800 rounded-lg hover:bg-gray-300 transition font-semibold disabled:opacity-50"
+        >
+          Cancelar
+        </button>
+        <button
+          (click)="confirmReject()"
+          [disabled]="rejectingRequest || rejectReason.trim().length < 10"
+          class="flex-1 px-4 py-3 bg-red-600 text-white rounded-lg hover:bg-red-700 transition disabled:opacity-50 font-semibold flex items-center justify-center gap-2"
+        >
+          <svg *ngIf="!rejectingRequest" class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+          </svg>
+          <div *ngIf="rejectingRequest" class="animate-spin rounded-full h-5 w-5 border-b-2 border-white"></div>
+          <span *ngIf="rejectingRequest">Rechazando...</span>
+          <span *ngIf="!rejectingRequest">Confirmar Rechazo</span>
+        </button>
+      </div>
+    </div>
+  </div>
+</div>

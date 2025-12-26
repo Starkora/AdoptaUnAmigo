@@ -1,0 +1,109 @@
+<!-- Navbar -->
+<nav class="bg-white shadow-md">
+  <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+    <div class="flex justify-between h-16">
+      <div class="flex items-center">
+        <a routerLink="/" class="flex items-center">
+          <svg class="w-8 h-8 text-indigo-600 mr-2" fill="currentColor" viewBox="0 0 24 24">
+            <path d="M18 10c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2s-2 .9-2 2v4c0 1.1.9 2 2 2zM6 10c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2S4 2.9 4 4v4c0 1.1.9 2 2 2zm6 0c3.31 0 6 2.69 6 6 0 1.66-1.34 3-3 3h-6c-1.66 0-3-1.34-3-3 0-3.31 2.69-6 6-6zm0 2c-2.21 0-4 1.79-4 4h8c0-2.21-1.79-4-4-4z"/>
+          </svg>
+          <span class="text-xl font-bold text-gray-900">AdoptaUnAmigo</span>
+        </a>
+      </div>
+      <div class="flex items-center space-x-4">
+        <a routerLink="/" class="text-gray-700 hover:text-indigo-600 px-3 py-2 rounded-md text-sm font-medium">Inicio</a>
+        <a routerLink="/dogs" class="text-gray-700 hover:text-indigo-600 px-3 py-2 rounded-md text-sm font-medium">Perros</a>
+        <a routerLink="/register" class="bg-indigo-600 text-white hover:bg-indigo-700 px-4 py-2 rounded-md text-sm font-medium">Registrarse</a>
+      </div>
+    </div>
+  </div>
+</nav>
+
+<div class="min-h-screen flex items-center justify-center bg-gray-50 py-12 px-4">
+  <div class="max-w-md w-full space-y-8">
+    <div>
+      <div class="flex items-center justify-center mb-2">
+        <svg class="w-12 h-12 text-indigo-600 mr-2" fill="currentColor" viewBox="0 0 24 24">
+          <path d="M18 10c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2s-2 .9-2 2v4c0 1.1.9 2 2 2zM6 10c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2S4 2.9 4 4v4c0 1.1.9 2 2 2zm6 0c3.31 0 6 2.69 6 6 0 1.66-1.34 3-3 3h-6c-1.66 0-3-1.34-3-3 0-3.31 2.69-6 6-6zm0 2c-2.21 0-4 1.79-4 4h8c0-2.21-1.79-4-4-4z"/>
+        </svg>
+        <h2 class="text-3xl font-extrabold text-gray-900">AdoptaUnAmigo</h2>
+      </div>
+      <p class="text-center text-sm text-gray-600">
+        Inicia sesión en tu cuenta
+      </p>
+    </div>
+
+    <form class="mt-8 space-y-6" (ngSubmit)="onSubmit()">
+      <div class="rounded-md shadow-sm space-y-4">
+        <div>
+          <label for="email" class="block text-sm font-medium text-gray-700">
+            Email
+          </label>
+          <input
+            id="email"
+            name="email"
+            type="email"
+            required
+            [(ngModel)]="email"
+            class="mt-1 appearance-none relative block w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-indigo-500 focus:border-indigo-500"
+            placeholder="tu@email.com"
+          />
+        </div>
+
+        <div>
+          <label for="password" class="block text-sm font-medium text-gray-700">
+            Contraseña
+          </label>
+          <div class="relative">
+            <input
+              id="password"
+              name="password"
+              [type]="showPassword ? 'text' : 'password'"
+              required
+              [(ngModel)]="password"
+              class="mt-1 appearance-none relative block w-full px-3 py-2 pr-10 border border-gray-300 rounded-md focus:outline-none focus:ring-indigo-500 focus:border-indigo-500"
+              placeholder="••••••••"
+            />
+            <button
+              type="button"
+              (click)="togglePasswordVisibility()"
+              class="absolute inset-y-0 right-0 pr-3 flex items-center text-gray-400 hover:text-gray-600"
+            >
+              <svg *ngIf="!showPassword" class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+              </svg>
+              <svg *ngIf="showPassword" class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.543-7a9.97 9.97 0 011.563-3.029m5.858.908a3 3 0 114.243 4.243M9.878 9.878l4.242 4.242M9.88 9.88l-3.29-3.29m7.532 7.532l3.29 3.29M3 3l3.59 3.59m0 0A9.953 9.953 0 0112 5c4.478 0 8.268 2.943 9.543 7a10.025 10.025 0 01-4.132 5.411m0 0L21 21" />
+              </svg>
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <div *ngIf="errorMessage" class="text-red-600 text-sm text-center">
+        {{ errorMessage }}
+      </div>
+
+      <div>
+        <button
+          type="submit"
+          [disabled]="isLoading"
+          class="group relative w-full flex justify-center py-2 px-4 border border-transparent text-sm font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 disabled:opacity-50"
+        >
+          <span *ngIf="!isLoading">Iniciar Sesión</span>
+          <span *ngIf="isLoading">Cargando...</span>
+        </button>
+      </div>
+
+      <div class="text-center">
+        <p class="text-sm text-gray-600">
+          ¿No tienes cuenta?
+          <a routerLink="/register" class="font-medium text-indigo-600 hover:text-indigo-500">
+            Regístrate aquí
+          </a>
+        </p>
+      </div>
+    </form>
+  </div>
+</div>
